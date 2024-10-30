@@ -13,24 +13,37 @@ class Program
     {
         var rootCommand = new RootCommand("Turn an image into ASCII characters");
         var imageArgument = new Argument<string>("image", "Path to the image to process");
+        var imageOutputOption = new Option<string>("--file", "Write resulting image to a file");
         rootCommand.AddArgument(imageArgument);
+        rootCommand.AddOption(imageOutputOption);
 
         // Set up the handler for the root command
-        rootCommand.SetHandler((string imagePath) =>
+        rootCommand.SetHandler(async (string imagePath, string imageOutput) =>
+{
+    try
+    {
+        using Image image = Image.Load(imagePath);
+
+        string asciiArt = GenerateASCII("@%#WMB8&$0ZOLXo=+~-;:,. ", image, 2);
+
+        if (!string.IsNullOrEmpty(imageOutput))
         {
-            try
-            {
-                using Image image = Image.Load(imagePath);
+            // Write the ASCII art to the specified file
+            await File.WriteAllTextAsync(imageOutput, asciiArt);
+            Console.WriteLine($"ASCII art written to {imageOutput}");
+        }
+        else
+        {
+            // Print the ASCII art to the console
+            Console.WriteLine(asciiArt);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error loading image: {ex.Message}");
+    }
 
-                string asciiArt = GenerateASCII("@%#WMB8&$0ZOLXo=+~-;:,. ", image, 2);
-                Console.WriteLine(asciiArt);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading image: {ex.Message}");
-            }
-
-        }, imageArgument);
+}, imageArgument, imageOutputOption);
 
         // Invoke the root command
         return rootCommand.InvokeAsync(args).Result;
