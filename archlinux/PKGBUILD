@@ -1,0 +1,36 @@
+pkgname=image-to-ascii
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="A simplistic Image to ASCII text console application"
+arch=('x86_64')
+url="https://github.com/walker84837/ImageToASCII.git"
+license=('MIT')
+depends=('dotnet-runtime')
+makedepends=('git' 'dotnet-sdk')
+source=("$pkgname::git+$url#tag=v$pkgver")
+sha256sums=('SKIP')
+
+build() {
+    cd "$srcdir/$pkgname"
+
+    # Restore .NET dependencies
+    dotnet restore
+
+    # Build the project
+    dotnet build --configuration Release
+}
+
+package() {
+    cd "$srcdir/$pkgname"
+
+    # Publish the project (creates a self-contained executable)
+    dotnet publish --configuration Release --output "$srcdir/publish"
+
+    # Install the executable
+    install -Dm755 "$srcdir/publish/ImageToASCII" "$pkgdir/usr/bin/img2ascii"
+}
+
+pkgver() {
+    cd "$srcdir/$pkgname"
+    git describe --tags | sed 's/^v//'
+}
