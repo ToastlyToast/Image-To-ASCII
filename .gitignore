@@ -10,3 +10,9 @@ artifacts/
 *.userprefs
 *DS_Store
 *.sln.ide
+
+# Arch Linux
+archlinux/pkg
+archlinux/src
+archlinux/*.pkg.tar.zst
+archlinux/image-to-ascii
